@@ -31,6 +31,8 @@ It would be nice if someone forked and improved it by doing the following:
 
 Note that there are little to no comments since I didn't intend to release to public.
 
+It would be nice if executors supported this fully so in the event The Augur rises to power once again, that more accurate saves of ServerScriptService and ServerStorage can be done on today's top games
+
 
 ## How to Use
 Assuming you are using it as a module
@@ -62,7 +64,7 @@ Serializer = {
 ```
 If Callback or Clipboard is set, it does that instead of writing to a file.
 
-## What executor devs should do to get the most out of this and accuracy
+## What executor devs should do to support this fully and ensure accurate saves
 - For gethiddenproperty, support BinaryString and SharedString (return the raw binary value that is shared)
 - have lz4 compress function
 - have a clipboard function that sets to `application/x-roblox-studio` (for reference, copy something in studio and use clipboard viewer to see how its saved)
