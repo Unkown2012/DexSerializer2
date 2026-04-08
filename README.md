@@ -25,7 +25,7 @@ powered the saveinstance function in the top executors at the time before they w
 The options in this serializer is also what UNC's saveinstance is based of, due to ScriptWare using this as its primary saveinstance implementation.
 
 It would be nice if someone forked and improved it by doing the following:
-- Support the newer roblox types such as Content
+- Support the newer roblox types such as Content, etc
 - Use buffer
 - Use ReflectionService
 
@@ -43,6 +43,13 @@ serializer.Init()
 -- Then we can save
 serializer.Save(instance, name, options)
 ```
+
+For `instance` you can put any of the following
+- A single instance to save it and all descendants
+- `game` to save the whole game to a .rbxl file
+- A table with multiple instances inside it, to save something with multiple roots
+
+The name is optional, if you leave it out it will generate one.
 
 Options
 ```lua
@@ -72,6 +79,10 @@ If Callback or Clipboard is set, it does that instead of writing to a file.
 	- Vector3int16 (used in TerrainRegion)
 - have lz4 compress function
 - have a clipboard function that sets to `application/x-roblox-studio` (for reference, copy something in studio and use clipboard viewer to see how its saved)
+
+## Community Server
+If you would like to find more information, or talk to others interested in this script, you may join the server:<br>https://discord.gg/jnXFq2VBgU<br>
+Note that very limited to no support will be provided.
 
 <br>
 
