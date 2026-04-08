@@ -29,6 +29,8 @@ It would be nice if someone forked and improved it by doing the following:
 - Use buffer
 - Use ReflectionService
 
+Note that there are little to no comments since I didn't intend to release to public.
+
 
 ## How to Use
 Assuming you are using it as a module
@@ -58,6 +60,14 @@ Serializer = {
 	Clipboard = false -- Copies the raw binary to clipboard instead of writing to file (need a clipboard function that sets the type to application/x-roblox-studio)
 }
 ```
+If Callback or Clipboard is set, it does that instead of writing to a file.
+
+## What executor devs should do to get the most out of this and accuracy
+- For gethiddenproperty, support BinaryString and SharedString (return the raw binary value that is shared)
+- have lz4 compress function
+- have a clipboard function that sets to `application/x-roblox-studio` (for reference, copy something in studio and use clipboard viewer to see how its saved)
+
+<br>
 
 Made by Moon
 
