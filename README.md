@@ -65,7 +65,11 @@ Serializer = {
 If Callback or Clipboard is set, it does that instead of writing to a file.
 
 ## What executor devs should do to support this fully and ensure accurate saves
-- For gethiddenproperty, support BinaryString and SharedString (return the raw binary value that is shared)
+- For gethiddenproperty, support
+	- BinaryString
+ 	- SharedString (return the raw binary value that is shared)
+	- Color3uint8 (this property is on BasePart and it is what gets serialized for part colors)
+	- Vector3int16 (used in TerrainRegion)
 - have lz4 compress function
 - have a clipboard function that sets to `application/x-roblox-studio` (for reference, copy something in studio and use clipboard viewer to see how its saved)
 
