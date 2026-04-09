@@ -10,12 +10,12 @@ An accurate Roblox Binary Format Serializer made in Lua
 
 
 ## Disclaimer
-Executors are not recommended to use this serializer as is, since is not maintained. I only released this for learning purposes.
-It is recommended to wait for someone interested to fork this so they can take over the project and maintain it.
+Executors are not recommended to use this serializer as is, since is not maintained. I only released this for learning purposes.  
+It is recommended to wait for someone interested to fork this so they can take over the project and maintain it.  
 Or if you are interesting in maintaining this GitHub repo itself, then please contact me in the community server.
 
-I do not use executors anymore so I had did small fixes to support the newer API dumps in studio, etc.
-Go to [Suggested Improvements](#suggested-improvements) to see a list of improvements that can be made to this script.
+I do not use executors anymore so I had did small fixes to support the newer API dumps in studio, etc.  
+Go to [Suggested Improvements](#suggested-improvements) to see a list of improvements that can be made to this script.  
 Please see the [Known Issues](#known-issues) section for some issues that people I know have found when I had them test this script on executors.
 
 
