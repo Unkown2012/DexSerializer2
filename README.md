@@ -12,7 +12,7 @@ An accurate Roblox Binary Format Serializer made in Lua
 ## Disclaimer
 Executors are not recommended to use this serializer as is, since is not maintained. I only released this for learning purposes.  
 It is recommended to wait for someone interested to fork this so they can take over the project and maintain it.  
-Or if you are interesting in maintaining this GitHub repo itself, then please contact me in the community server.
+Or if you are interested in maintaining this GitHub repo itself, then please contact me in the community server.
 
 I do not use executors anymore so I had did small fixes to support the newer API dumps in studio, etc.  
 Go to [Suggested Improvements](#suggested-improvements) to see a list of improvements that can be made to this script.  
@@ -32,6 +32,8 @@ powered the saveinstance function in the top executors at the time before they w
 - ScriptWare
 - Synapse X
 - Elysian
+
+Back then, the saveinstance scripts were horrible. The best one that Synapse had was the rerumu one which was so slow and inaccurate.
 
 The options in this serializer is also what UNC's saveinstance is based of, due to ScriptWare using this as its primary saveinstance implementation.
 
@@ -93,6 +95,7 @@ Here are some sugggestions for those interested in maintaining this script:
 	- If you are interested in reversing the new types, I have attached a script called `unlz4.lua` that you can modify to decompress the lz4 chunks in a binary format file so you can take a look at how studio saves certain types.
 - Use buffer
 - Use ReflectionService for API dumps
+- Possibly clean it up
 
 ## Known Issues
 - Axes property doesn't save properly in XML due to a typo in the tag
