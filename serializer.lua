@@ -1206,6 +1206,7 @@ Serializer = (function()
 					message = message .. "\t" .. tostring(i) .. " = " .. tostring(v) .. "\n"
 				end
 			end
+			bufferCount = bufferCount + 1
 
 		elseif isTable then
 			for i = 1,#root do
