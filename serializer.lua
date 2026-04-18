@@ -1,35 +1,3 @@
---[[
-
-    ____               _____           _       ___                
-   / __ \___  _  __   / ___/___  _____(_)___ _/ (_)___  ___  _____
-  / / / / _ \| |/_/   \__ \/ _ \/ ___/ / __ `/ / /_  / / _ \/ ___/
- / /_/ /  __/>  <    ___/ /  __/ /  / / /_/ / / / / /_/  __/ /    
-/_____/\___/_/|_|   /____/\___/_/  /_/\__,_/_/_/ /___/\___/_/     
-                                                                  
-
-The most accurate and top lua roblox binary format serializer since late 2020
-
-Made in preparation for The Augur's reign that started in July 2021
-
-Many ServerScriptService and ServerStorage models of top games were saved with top accuracy
-
-
-This is old and discontinued, but the agency released it to show people the grand serializer that
-powered the saveinstance function in the top executors at the time before they were discontinued:
-- ScriptWare
-- Synapse X
-
-
-It would be nice if someone forked and improved it
-- Support the newer types
-- Use buffer
-- Use ReflectionService
-
-
-]]
-
-
--- Made by Moon
 local Main,Serializer,API,Settings,DefaultSettings,env
 
 local service = setmetatable({},{__index = function(self,name)
@@ -1227,8 +1195,6 @@ Serializer = (function()
 				end
 			end
 
-			local message = readMeStart
-
 			for i, v in next, saveSettings do
 				if type(v) == "table" then -- assume array
 					local strings = {}
@@ -1240,6 +1206,7 @@ Serializer = (function()
 					message = message .. "\t" .. tostring(i) .. " = " .. tostring(v) .. "\n"
 				end
 			end
+
 		elseif isTable then
 			for i = 1,#root do
 				recur(root[i])
@@ -1793,8 +1760,6 @@ Serializer = (function()
 					recur(obj)
 				end
 			end
-
-			local message = readMeStart
 
 			for i, v in next, saveSettings do
 				if type(v) == "table" then -- assume array
