@@ -8,7 +8,7 @@ end})
 
 DefaultSettings = {
 	Serializer = {
-		_Recurse = true,
+		_Recurse = false,
 		Decompile = true,
 		NilInstances = false,
 		RemovePlayerCharacters = true,
