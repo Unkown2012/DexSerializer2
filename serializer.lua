@@ -41,7 +41,7 @@ end})
 DefaultSettings = {
 	Serializer = {
 		_Recurse = true,
-		Decompile = false,
+		Decompile = true,
 		NilInstances = false,
 		RemovePlayerCharacters = true,
 		SavePlayers = false,
