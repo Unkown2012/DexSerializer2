@@ -49,7 +49,7 @@ DefaultSettings = {
 		MaxThreads = 3,
 		DecompileIgnore = {"Chat","CoreGui","CorePackages"},
 		ShowStatus = true,
-		IgnoreDefaultProps = false,
+		IgnoreDefaultProps = true,
 		IsolateStarterPlayer = true,
 		Binary = true,
 		Callback = false,
@@ -827,24 +827,7 @@ Serializer = (function()
 			return concat(result)
 		end,
 	}
-
-	local specialProps = {
-		["Script"] = {
-			{Name = "Source", ValueType = {Name = "ProtectedString", Category = "DataType"}, Special = "Decompile"}
-		},
-		["ModuleScript"] = {
-			{Name = "Source", ValueType = {Name = "ProtectedString", Category = "DataType"}, Special = "Decompile"}
-		},
-		["TerrainRegion"] = { -- TODO: Vector3int16 support for gethiddenprop
-			{Name = "ExtentsMin", ValueType = {Name = "Vector3int16", Category = "DataType"}, Special = "Func", Func = function(obj) return workspace.Terrain.MaxExtents.Min end},
-			{Name = "ExtentsMax", ValueType = {Name = "Vector3int16", Category = "DataType"}, Special = "Func", Func = function(obj) return workspace.Terrain.MaxExtents.Max end},
-		},
-		["Model"] = { -- TODO: OptionalCoordinateFrame support for gethiddenprop
-			{Name = "WorldPivotData", ValueType = {Name = "OptionalCoordinateFrame", Category = "DataType"}, IndexName = "WorldPivot"},
-		},
-	}
-
-	--[[
+		
 	local specialProps = {
 		["Instance"] = {
 			{Name = "AttributesSerialize", ValueType = {Name = "BinaryString"}, Special = "BinaryString"},
@@ -921,33 +904,6 @@ Serializer = (function()
 			{Name = "VersionIdSerialize", ValueType = {Name = "int64"}, IndexName = "VersionNumber"}
 		}
 	}
-	]]
-
-	local readMeStart = [==[--[[
-	Thank you for using Dex SaveInstance.
-	You are recommended to save the game (if you used saveplace) right away to take advantage of the binary format (if you didn't save in binary).
-	If your player cannot spawn into the game, please move the scripts in StarterPlayer elsewhere. (This is done by default)
-	If the chat system does not work, please use the explorer and delete everything inside the Chat service. (Or run game:GetService("Chat"):ClearAllChildren())
-	
-	If union and meshpart collisions don't work, first run this script in the Studio command bar:
-	local list = {}
-	local coreGui = game:GetService("CoreGui")
-
-	for i,v in pairs(game:GetDescendants()) do
-		local s,e = pcall(function() return v:IsA("UnionOperation") or v:IsA("MeshPart") end)
-		if s and e and not v:IsDescendantOf(coreGui) then
-			list[#list+1] = v
-		end
-	end
-
-	game.Selection:Set(list)
-	
-	After running it, go to the Properties window and change CollisionFidelity from "Box" to "Default".
-
-	
-	This file was generated with the following settings:
-	
-]==]
 
 	local function getSaveProps(obj,class)
 		local result = {}
