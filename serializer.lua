@@ -1,3 +1,35 @@
+--[[
+
+    ____               _____           _       ___                
+   / __ \___  _  __   / ___/___  _____(_)___ _/ (_)___  ___  _____
+  / / / / _ \| |/_/   \__ \/ _ \/ ___/ / __ `/ / /_  / / _ \/ ___/
+ / /_/ /  __/>  <    ___/ /  __/ /  / / /_/ / / / / /_/  __/ /    
+/_____/\___/_/|_|   /____/\___/_/  /_/\__,_/_/_/ /___/\___/_/     
+                                                                  
+
+The most accurate and top lua roblox binary format serializer since late 2020
+
+Made in preparation for The Augur's reign that started in July 2021
+
+Many ServerScriptService and ServerStorage models of top games were saved with top accuracy
+
+
+This is old and discontinued, but the agency released it to show people the grand serializer that
+powered the saveinstance function in the top executors at the time before they were discontinued:
+- ScriptWare
+- Synapse X
+
+
+It would be nice if someone forked and improved it
+- Support the newer types
+- Use buffer
+- Use ReflectionService
+
+
+]]
+
+
+-- Made by Moon
 local Main,Serializer,API,Settings,DefaultSettings,env
 
 local service = setmetatable({},{__index = function(self,name)
@@ -795,7 +827,24 @@ Serializer = (function()
 			return concat(result)
 		end,
 	}
-		
+
+	local specialProps = {
+		["Script"] = {
+			{Name = "Source", ValueType = {Name = "ProtectedString", Category = "DataType"}, Special = "Decompile"}
+		},
+		["ModuleScript"] = {
+			{Name = "Source", ValueType = {Name = "ProtectedString", Category = "DataType"}, Special = "Decompile"}
+		},
+		["TerrainRegion"] = { -- TODO: Vector3int16 support for gethiddenprop
+			{Name = "ExtentsMin", ValueType = {Name = "Vector3int16", Category = "DataType"}, Special = "Func", Func = function(obj) return workspace.Terrain.MaxExtents.Min end},
+			{Name = "ExtentsMax", ValueType = {Name = "Vector3int16", Category = "DataType"}, Special = "Func", Func = function(obj) return workspace.Terrain.MaxExtents.Max end},
+		},
+		["Model"] = { -- TODO: OptionalCoordinateFrame support for gethiddenprop
+			{Name = "WorldPivotData", ValueType = {Name = "OptionalCoordinateFrame", Category = "DataType"}, IndexName = "WorldPivot"},
+		},
+	}
+
+	--[[
 	local specialProps = {
 		["Instance"] = {
 			{Name = "AttributesSerialize", ValueType = {Name = "BinaryString"}, Special = "BinaryString"},
@@ -872,6 +921,33 @@ Serializer = (function()
 			{Name = "VersionIdSerialize", ValueType = {Name = "int64"}, IndexName = "VersionNumber"}
 		}
 	}
+	]]
+
+	local readMeStart = [==[--[[
+	Thank you for using Dex SaveInstance.
+	You are recommended to save the game (if you used saveplace) right away to take advantage of the binary format (if you didn't save in binary).
+	If your player cannot spawn into the game, please move the scripts in StarterPlayer elsewhere. (This is done by default)
+	If the chat system does not work, please use the explorer and delete everything inside the Chat service. (Or run game:GetService("Chat"):ClearAllChildren())
+	
+	If union and meshpart collisions don't work, first run this script in the Studio command bar:
+	local list = {}
+	local coreGui = game:GetService("CoreGui")
+
+	for i,v in pairs(game:GetDescendants()) do
+		local s,e = pcall(function() return v:IsA("UnionOperation") or v:IsA("MeshPart") end)
+		if s and e and not v:IsDescendantOf(coreGui) then
+			list[#list+1] = v
+		end
+	end
+
+	game.Selection:Set(list)
+	
+	After running it, go to the Properties window and change CollisionFidelity from "Box" to "Default".
+
+	
+	This file was generated with the following settings:
+	
+]==]
 
 	local function getSaveProps(obj,class)
 		local result = {}
@@ -1195,6 +1271,8 @@ Serializer = (function()
 				end
 			end
 
+			local message = readMeStart
+
 			for i, v in next, saveSettings do
 				if type(v) == "table" then -- assume array
 					local strings = {}
@@ -1206,8 +1284,14 @@ Serializer = (function()
 					message = message .. "\t" .. tostring(i) .. " = " .. tostring(v) .. "\n"
 				end
 			end
-			bufferCount = bufferCount + 1
 
+			message = message .. "]]"
+
+			local readmeScript = Instance.new("Script")
+			readmeScript.Name = "README"
+			nilBlacklist[readmeScript] = true
+			sources[readmeScript] = message
+			recur(readmeScript)
 		elseif isTable then
 			for i = 1,#root do
 				recur(root[i])
@@ -1762,6 +1846,8 @@ Serializer = (function()
 				end
 			end
 
+			local message = readMeStart
+
 			for i, v in next, saveSettings do
 				if type(v) == "table" then -- assume array
 					local strings = {}
@@ -1774,6 +1860,17 @@ Serializer = (function()
 				end
 
 			end
+
+			message = message .. "]]"
+
+			buffer[bufferCount] = [==[
+
+<Item class="Script" referent="RBX999999999">
+<Properties>
+<string name="Name">README</string>
+<ProtectedString name="Source">]==]..gsub(message, xmlReplacePattern, xmlReplace)..[==[</ProtectedString>
+</Properties>
+</Item>]==]
 			bufferCount = bufferCount + 1
 		elseif isTable then
 			for i = 1,#root do
