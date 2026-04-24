@@ -2101,8 +2101,6 @@ local Main = (function()
 	return Main
 end)()
 
-return Main
-
 return {
 	Init = function(oldindex)
 		local api, e = Main.FetchAPI() -- TODO: only request new api on roblox updates?
