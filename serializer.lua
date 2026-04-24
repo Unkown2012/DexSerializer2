@@ -1956,82 +1956,63 @@ end)()
 --!strict
 Main = (function()
 	local Main = {}
-Main.FetchAPI = function()
-	local ReflectionService = game:GetService("ReflectionService")
-	local HttpService = game:GetService("HttpService")
-	local RunService = game:GetService("RunService")
-	
-	-- ReflectionService only works in Studio and requires PluginSecurity level
-	if not RunService:IsStudio() then
-		warn("FetchAPI: ReflectionService is only available in Roblox Studio.")
-		return nil
-	end
 
-	local rawAPI
-	local success, err = pcall(function()
-		rawAPI = ReflectionService:GetApiDump()
-	end)
+	Main.FetchAPI = function()
+		-- You should see if you can use ReflectionService here
 
-	if not success or not rawAPI or rawAPI == "" then
-		warn("FetchAPI: Failed to retrieve API Dump. Ensure this is running in a Plugin or Command Bar.")
-		print("Error Details:", err)
-		return nil
-	end
-
-	local api = HttpService:JSONDecode(rawAPI)
-	local classes, enums = {}, {}
-
-	-- Process Classes
-	for _, class in pairs(api.Classes) do
-		local newClass = {
-			Name = class.Name,
-			Superclass = classes[class.Superclass], -- Note: This only works if Superclass was processed first
-			Properties = {},
-			Functions = {},
-			Events = {},
-			Callbacks = {},
-			Tags = {}
-		}
-
-		if class.Tags then 
-			for _, tag in pairs(class.Tags) do newClass.Tags[tag] = true end 
+		--local robloxVer = game:HttpGet("http://setup.roblox.com/versionQTStudio")
+		local rawAPI
+		
+		if game:GetService("RunService"):IsStudio() then
+			rawAPI = game:HttpGet("https://raw.githubusercontent.com/Unkown2012/DexSerializer2/refs/heads/main/Full-API-Dump.json")
 		end
+		
+		local api = service.HttpService:JSONDecode(rawAPI)
+		local classes,enums = {},{}
 
-		for _, member in pairs(class.Members) do
-			local newMember = {
-				Name = member.Name,
-				Class = class.Name,
-				Tags = {}
-			}
-			
-			if member.Tags then 
-				for _, tag in pairs(member.Tags) do newMember.Tags[tag] = true end 
+		for _,class in pairs(api.Classes) do
+			local newClass = {}
+			newClass.Name = class.Name
+			newClass.Superclass = classes[class.Superclass]
+			newClass.Properties = {}
+			newClass.Functions = {}
+			newClass.Events = {}
+			newClass.Callbacks = {}
+			newClass.Tags = {}
+
+			if class.Tags then for c,tag in pairs(class.Tags) do newClass.Tags[tag] = true end end
+
+			for __,member in pairs(class.Members) do
+				local newMember = {}
+				newMember.Name = member.Name
+				newMember.Class = class.Name
+				newMember.Tags = {}
+				if member.Tags then for c,tag in pairs(member.Tags) do newMember.Tags[tag] = true end end
+
+				local mType = member.MemberType
+				if mType == "Property" then
+					newMember.ValueType = member.ValueType
+					newMember.Category = member.Category
+					newMember.Serialization = member.Serialization
+					table.insert(newClass.Properties,newMember)
+				elseif mType == "Function" then
+					newMember.Parameters = {}
+					newMember.ReturnType = member.ReturnType.Name
+					for c,param in pairs(member.Parameters) do
+						table.insert(newMember.Parameters,{Name = param.Name, Type = param.Type.Name})
+					end
+					table.insert(newClass.Functions,newMember)
+				elseif mType == "Event" then
+					newMember.Parameters = {}
+					for c,param in pairs(member.Parameters) do
+						table.insert(newMember.Parameters,{Name = param.Name, Type = param.Type.Name})
+					end
+					table.insert(newClass.Events,newMember)
+				end
 			end
 
-			local mType = member.MemberType
-			if mType == "Property" then
-				newMember.ValueType = member.ValueType.Name
-				newMember.Category = member.Category
-				newMember.Serialization = member.Serialization
-				table.insert(newClass.Properties, newMember)
-			elseif mType == "Function" then
-				newMember.Parameters = {}
-				newMember.ReturnType = member.ReturnType.Name
-				for _, param in pairs(member.Parameters) do
-					table.insert(newMember.Parameters, {Name = param.Name, Type = param.Type.Name})
-				end
-				table.insert(newClass.Functions, newMember)
-			elseif mType == "Event" then
-				newMember.Parameters = {}
-				for _, param in pairs(member.Parameters) do
-					table.insert(newMember.Parameters, {Name = param.Name, Type = param.Type.Name})
-				end
-				table.insert(newClass.Events, newMember)
-			end
+			classes[class.Name] = newClass
 		end
-
-		classes[class.Name] = newClass
-    end
 
 		for _,enum in pairs(api.Enums) do
 			local newEnum = {}
@@ -2090,6 +2071,7 @@ Main.FetchAPI = function()
 
 	return Main
 end)()
+
 
 return {
 	Init = function(oldindex)
