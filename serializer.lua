@@ -1995,7 +1995,7 @@ Main = (function()
 		local rawAPI
 		
 		if game:GetService("RunService"):IsStudio() then
-			rawAPI = require(game.ReplicatedStorage.FullAPI)
+			rawAPI = game:GetService("ReflectionService"):GetApiDump()
 		else
 			rawAPI = game:HttpGet("https://raw.githubusercontent.com/MaximumADHD/Roblox-Client-Tracker/refs/heads/roblox/Full-API-Dump.json")
 		end
@@ -2104,6 +2104,7 @@ Main = (function()
 
 	return Main
 end)()
+
 
 return {
 	Init = function(oldindex)
