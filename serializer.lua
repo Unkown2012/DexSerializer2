@@ -1072,7 +1072,7 @@ Serializer = (function()
 			descs[0] = nextRoot
 			for i = 0,#descs do
 				local obj = descs[i]
-				if (isa(obj,"LocalScript") or isa(obj,"ModuleScript")) or isa(obj,"Script")) and not checked[obj] then
+				if (isa(obj,"LocalScript") or isa(obj,"ModuleScript") or isa(obj,"Script")) and not checked[obj] then
 					local ignored = false
 					if ignoredServices then
 						for i = 1,#ignoredServices do
@@ -1953,110 +1953,140 @@ Serializer = (function()
 	return Serializer
 end)()
 
-Main = (function()
+--!strict
+local Main = (function()
 	local Main = {}
 
 	Main.FetchAPI = function()
-		-- You should see if you can use ReflectionService here
-
-		--local robloxVer = game:HttpGet("http://setup.roblox.com/versionQTStudio")
-		local rawAPI
+		local ReflectionService = game:GetService("ReflectionService")
+		local HttpService = game:GetService("HttpService")
 		
-		if game:GetService("RunService"):IsStudio() then
-			rawAPI = game:GetService("ReflectionService"):GetApiDump()
-		end
-		
-		local api = service.HttpService:JSONDecode(rawAPI)
-		local classes,enums = {},{}
+		-- ReflectionService:GetApiDump() returns a JSON string 
+		-- containing the entire Roblox API.
+		local rawAPI = ""
+		local success, err = pcall(function()
+			rawAPI = ReflectionService:GetApiDump()
+		end)
 
-		for _,class in pairs(api.Classes) do
-			local newClass = {}
-			newClass.Name = class.Name
-			newClass.Superclass = classes[class.Superclass]
-			newClass.Properties = {}
-			newClass.Functions = {}
-			newClass.Events = {}
-			newClass.Callbacks = {}
-			newClass.Tags = {}
-
-			if class.Tags then for c,tag in pairs(class.Tags) do newClass.Tags[tag] = true end end
-
-			for __,member in pairs(class.Members) do
-				local newMember = {}
-				newMember.Name = member.Name
-				newMember.Class = class.Name
-				newMember.Tags = {}
-				if member.Tags then for c,tag in pairs(member.Tags) do newMember.Tags[tag] = true end end
-
-				local mType = member.MemberType
-				if mType == "Property" then
-					newMember.ValueType = member.ValueType
-					newMember.Category = member.Category
-					newMember.Serialization = member.Serialization
-					table.insert(newClass.Properties,newMember)
-				elseif mType == "Function" then
-					newMember.Parameters = {}
-					newMember.ReturnType = member.ReturnType.Name
-					for c,param in pairs(member.Parameters) do
-						table.insert(newMember.Parameters,{Name = param.Name, Type = param.Type.Name})
-					end
-					table.insert(newClass.Functions,newMember)
-				elseif mType == "Event" then
-					newMember.Parameters = {}
-					for c,param in pairs(member.Parameters) do
-						table.insert(newMember.Parameters,{Name = param.Name, Type = param.Type.Name})
-					end
-					table.insert(newClass.Events,newMember)
-				end
-			end
-
-			classes[class.Name] = newClass
+		if not success or rawAPI == "" then
+			warn("ReflectionService failed or returned empty. Ensure this is running in a Plugin context.")
+			return nil
 		end
 
-		for _,enum in pairs(api.Enums) do
-			local newEnum = {}
-			newEnum.Name = enum.Name
-			newEnum.Items = {}
-			newEnum.Tags = {}
+		local api = HttpService:JSONDecode(rawAPI)
+		local classes = {}
+		local enums = {}
 
-			if enum.Tags then for c,tag in pairs(enum.Tags) do newEnum.Tags[tag] = true end end
-			for __,item in pairs(enum.Items) do
-				local newItem = {}
-				newItem.Name = item.Name
-				newItem.Value = item.Value
-				table.insert(newEnum.Items,newItem)
+		-- 1. Process Enums first (for easier reference)
+		for _, enum in ipairs(api.Enums) do
+			local newEnum = {
+				Name = enum.Name,
+				Items = {},
+				Tags = {}
+			}
+
+			if enum.Tags then
+				for _, tag in ipairs(enum.Tags) do newEnum.Tags[tag] = true end
 			end
 
+			for _, item in ipairs(enum.Items) do
+				table.insert(newEnum.Items, {
+					Name = item.Name,
+					Value = item.Value
+				})
+			end
 			enums[enum.Name] = newEnum
 		end
 
-		local function getMember(class,member)
-			if not classes[class] or not classes[class][member] then return end
-			local result = {}
+		-- 2. Process Classes
+		for _, class in ipairs(api.Classes) do
+			local newClass = {
+				Name = class.Name,
+				Superclass = class.Superclass, -- We'll link this to the actual table later
+				Properties = {},
+				Functions = {},
+				Events = {},
+				Callbacks = {},
+				Tags = {}
+			}
 
-			local currentClass = classes[class]
+			if class.Tags then
+				for _, tag in ipairs(class.Tags) do newClass.Tags[tag] = true end
+			end
+
+			for _, member in ipairs(class.Members) do
+				local newMember = {
+					Name = member.Name,
+					Class = class.Name,
+					Tags = {}
+				}
+				
+				if member.Tags then
+					for _, tag in ipairs(member.Tags) do newMember.Tags[tag] = true end
+				end
+
+				local mType = member.MemberType
+				if mType == "Property" then
+					newMember.ValueType = member.ValueType.Name
+					newMember.Category = member.Category
+					table.insert(newClass.Properties, newMember)
+				elseif mType == "Function" then
+					newMember.ReturnType = member.ReturnType.Name
+					newMember.Parameters = {}
+					for _, param in ipairs(member.Parameters) do
+						table.insert(newMember.Parameters, {Name = param.Name, Type = param.Type.Name})
+					end
+					table.insert(newClass.Functions, newMember)
+				elseif mType == "Event" then
+					newMember.Parameters = {}
+					for _, param in ipairs(member.Parameters) do
+						table.insert(newMember.Parameters, {Name = param.Name, Type = param.Type.Name})
+					end
+					table.insert(newClass.Events, newMember)
+				end
+			end
+			classes[class.Name] = newClass
+		end
+
+		-- 3. Link Superclasses (Replace string names with table references)
+		for _, class in pairs(classes) do
+			if class.Superclass and classes[class.Superclass] then
+				class.Superclass = classes[class.Superclass]
+			else
+				class.Superclass = nil -- Root classes like <<Root>>
+			end
+		end
+
+		-- Helper: Get members including inherited ones
+		local function getMembers(className, memberType)
+			local result = {}
+			local currentClass = classes[className]
+			
 			while currentClass do
-				for _,entry in pairs(currentClass[member]) do
-					result[#result+1] = entry
+				local members = currentClass[memberType]
+				if members then
+					for _, entry in ipairs(members) do
+						table.insert(result, entry)
+					end
 				end
 				currentClass = currentClass.Superclass
 			end
 
-			table.sort(result,function(a,b) return a.Name < b.Name end)
+			table.sort(result, function(a, b) return a.Name < b.Name end)
 			return result
 		end
 
 		return {
 			Classes = classes,
 			Enums = enums,
-			GetMember = getMember
+			GetMembers = getMembers
 		}
 	end
 
-	Main.ResetSettings = function()
+	Main.ResetSettings = function(defaultSettings)
 		local function recur(t)
 			local res = {}
-			for set,val in pairs(t) do
+			for set, val in pairs(t) do
 				if type(val) == "table" and val._Recurse then
 					res[set] = recur(val)
 				else
@@ -2065,12 +2095,13 @@ Main = (function()
 			end
 			return res
 		end
-		Settings = recur(DefaultSettings)
+		return recur(defaultSettings)
 	end
 
 	return Main
 end)()
 
+return Main
 
 return {
 	Init = function(oldindex)
