@@ -796,81 +796,21 @@ Serializer = (function()
 		end,
 	}
 		
+
 	local specialProps = {
-		["Instance"] = {
-			{Name = "AttributesSerialize", ValueType = {Name = "BinaryString"}, Special = "BinaryString"},
-			{Name = "Tags", ValueType = {Name = "BinaryString"}, Special = "BinaryString"},
-		},
-		["TriangleMeshPart"] = {
-			{Name = "LODData", ValueType = {Name = "BinaryString"}, Special = "BinaryString"},
-			{Name = "PhysicalConfigData", ValueType = {Name = "SharedString"}, Special = "SharedString"},
-		},
-		["PartOperation"] = {
-			{Name = "AssetId", ValueType = {Name = "Content"}, Special = "NotScriptable"},
-			{Name = "InitialSize", ValueType = {Name = "Vector3"}, Special = "NotScriptable"},
-			{Name = "ChildData", ValueType = {Name = "BinaryString"}, Special = "BinaryString"},
-			{Name = "MeshData", ValueType = {Name = "BinaryString"}, Special = "BinaryString"},
-			{Name = "PhysicsData", ValueType = {Name = "BinaryString"}, Special = "BinaryString"},
-			{Name = "ChildData2", ValueType = {Name = "SharedString"}, Special = "SharedString"},
-			{Name = "MeshData2", ValueType = {Name = "SharedString"}, Special = "SharedString"},
-			{Name = "FormFactor", ValueType = {Name = "FormFactor", Category = "Enum"}, Special = "NotScriptable"},
-		},
-		["MeshPart"] = {
-			{Name = "InitialSize", ValueType = {Name = "Vector3"}, Special = "NotScriptable"},
-			{Name = "PhysicsData", ValueType = {Name = "BinaryString"}, Special = "BinaryString"},
-		},
-		["Terrain"] = {
-			{Name = "Decoration", ValueType = {Name = "bool"}, Special = "NotScriptable"},
-			{Name = "MaterialColors", ValueType = {Name = "BinaryString"}, Special = "BinaryString"},
-			{Name = "SmoothGrid", ValueType = {Name = "BinaryString"}, Special = "BinaryString"},
-			{Name = "PhysicsGrid", ValueType = {Name = "BinaryString"}, Special = "BinaryString"},
-		},
-		["TerrainRegion"] = { -- TODO: Vector3int16 support for gethiddenprop
-			{Name = "SmoothGrid", ValueType = {Name = "BinaryString"}, Special = "BinaryString"},
-			{Name = "ExtentsMin", ValueType = {Name = "Vector3int16"}, Special = "Func", Func = function(obj) return workspace.Terrain.MaxExtents.Min end},
-			{Name = "ExtentsMax", ValueType = {Name = "Vector3int16"}, Special = "Func", Func = function(obj) return workspace.Terrain.MaxExtents.Max end},
-		},
-		["BinaryStringValue"] = {
-			{Name = "Value", ValueType = {Name = "BinaryString"}, Special = "BinaryString"},
-		},
-		["Workspace"] = {
-			{Name = "PGSPhysicsSolverEnabled", ValueType = {Name = "bool"}, Special = "Func", Func = function(obj) return obj:PGSIsEnabled() end},
-			{Name = "CollisionGroups", ValueType = {Name = "string"}, Special = "Func", Func = function(obj)
-				local groupTable = {}
-				for i,v in pairs(game:GetService("PhysicsService"):GetCollisionGroups()) do
-					groupTable[i] = v.name.."^"..v.id.."^"..v.mask
-				end
-				return table.concat(groupTable,"\\")
-			end}
-		},
-		["Humanoid"] = {
-			{Name = "Health_XML", ValueType = {Name = "float"}, IndexName = "Health"},
-		},
-		["Sound"] = {
-			{Name = "xmlRead_MaxDistance_3", ValueType = {Name = "float"}, IndexName = "MaxDistance"},
-		},
-		["WeldConstraint"] = {
-			{Name = "CFrame0", ValueType = {Name = "CFrame"}, Special = "NotScriptable"},
-			{Name = "CFrame1", ValueType = {Name = "CFrame"}, Special = "NotScriptable"},
-			{Name = "Part0Internal", ValueType = {Name = "Instance"}, IndexName = "Part0"},
-			{Name = "Part1Internal", ValueType = {Name = "Instance"}, IndexName = "Part1"}
-		},
-		["Lighting"] = {
-			{Name = "Technology", ValueType = {Category = "Enum"}, Special = "NotScriptable"}
-		},
-		["LocalizationTable"] = {
-			{Name = "Contents", ValueType = {Name = "string"}, Special = "NotScriptable"}
-		},
 		["Script"] = {
-			{Name = "Source", ValueType = {Name = "ProtectedString"}, Special = "Decompile"}
+			{Name = "Source", ValueType = {Name = "ProtectedString", Category = "DataType"}, Special = "Decompile"}
 		},
 		["ModuleScript"] = {
-			{Name = "Source", ValueType = {Name = "ProtectedString"}, Special = "Decompile"}
+			{Name = "Source", ValueType = {Name = "ProtectedString", Category = "DataType"}, Special = "Decompile"}
 		},
-		["PackageLink"] = {
-			{Name = "PackageIdSerialize", ValueType = {Name = "Content"}, IndexName = "PackageId"},
-			{Name = "VersionIdSerialize", ValueType = {Name = "int64"}, IndexName = "VersionNumber"}
-		}
+		["TerrainRegion"] = { -- TODO: Vector3int16 support for gethiddenprop
+			{Name = "ExtentsMin", ValueType = {Name = "Vector3int16", Category = "DataType"}, Special = "Func", Func = function(obj) return workspace.Terrain.MaxExtents.Min end},
+			{Name = "ExtentsMax", ValueType = {Name = "Vector3int16", Category = "DataType"}, Special = "Func", Func = function(obj) return workspace.Terrain.MaxExtents.Max end},
+		},
+		["Model"] = { -- TODO: OptionalCoordinateFrame support for gethiddenprop
+			{Name = "WorldPivotData", ValueType = {Name = "OptionalCoordinateFrame", Category = "DataType"}, IndexName = "WorldPivot"},
+		},
 	}
 
 	local function getSaveProps(obj,class)
