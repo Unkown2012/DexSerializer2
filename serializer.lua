@@ -1990,72 +1990,49 @@ Main = (function()
 
 	Main.FetchAPI = function()
 		-- You should see if you can use ReflectionService here
-
+local ReflectionService = game:GetService("ReflectionService")
+local HttpService = game:GetService("HttpService")
 		local rawAPI
-		
-		if game:GetService("RunService"):IsStudio() then
-			rawAPI = require(game.ReplicatedStorage.FullAPI)
-		else
-Main.FetchAPI = function()
-	-- You should see if you can use ReflectionService here
 
-	local rawAPI
-	
-	local RunService = game:GetService("RunService")
-	local HttpService = game:GetService("HttpService")
-
-	if RunService:IsStudio() then
-		rawAPI = require(game.ReplicatedStorage.FullAPI)
-	else
-		local ReflectionService = game:GetService("ReflectionService")
 
 		local api = {
-			Classes = {},
-			Enums = {}
-		}
+	Classes = {}
+}
 
-		for _, className in ipairs(ReflectionService:GetClasses()) do
-			local class = {
-				Name = className,
-				Superclass = nil,
-				Members = {},
-				Tags = {}
-			}
+for _, className in ipairs(ReflectionService:GetClasses()) do
+	local class = {
+		Name = className,
+		Superclass = nil,
+		Members = {}
+	}
 
-			-- intentar superclass
-			pcall(function()
-				class.Superclass = ReflectionService:GetBaseClass(className)
-			end)
+	-- herencia (útil para serializador)
+	pcall(function()
+		class.Superclass = ReflectionService:GetBaseClass(className)
+	end)
 
-			local success, members = pcall(function()
-				return ReflectionService:GetClassMembers(className)
-			end)
+	local success, members = pcall(function()
+		return ReflectionService:GetClassMembers(className)
+	end)
 
-			if success and members then
-				for _, member in ipairs(members) do
-					local m = {
-						Name = member.Name,
-						MemberType = member.MemberType,
-						Tags = {}
-					}
-
-					if member.MemberType == "Property" then
-						m.ValueType = { Name = member.ValueType or "any" }
-						m.Category = "Data"
-						m.Serialization = {}
-					elseif member.MemberType == "Function" or member.MemberType == "Event" then
-						m.Parameters = {}
-						m.ReturnType = { Name = "void" }
-					end
-
-					table.insert(class.Members, m)
-				end
+	if success and members then
+		for _, member in ipairs(members) do
+			if member.MemberType == "Property" then
+				table.insert(class.Members, {
+					Name = member.Name,
+					MemberType = "Property",
+					ValueType = { Name = member.ValueType or "any" }
+				})
 			end
-
-			table.insert(api.Classes, class)
 		end
+	end
 
-		rawAPI = HttpService:JSONEncode(api)
+	table.insert(api.Classes, class)
+end
+
+			
+		if game:GetService("RunService"):IsStudio() then
+			rawAPI =  rawAPI = HttpService:JSONEncode(api)
 		end
 		
 		local api = service.HttpService:JSONDecode(rawAPI)
