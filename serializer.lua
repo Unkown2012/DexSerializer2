@@ -52,8 +52,8 @@ DefaultSettings = {
 		IgnoreDefaultProps = true,
 		IsolateStarterPlayer = true,
 		Binary = true,
-		Callback = false,
-		Clipboard = false
+		Callback = true,
+		Clipboard = true
 	}
 }
 
@@ -1990,49 +1990,14 @@ Main = (function()
 
 	Main.FetchAPI = function()
 		-- You should see if you can use ReflectionService here
-local ReflectionService = game:GetService("ReflectionService")
-local HttpService = game:GetService("HttpService")
+
+		--local robloxVer = game:HttpGet("http://setup.roblox.com/versionQTStudio")
 		local rawAPI
-
-
-		local api = {
-	Classes = {}
-}
-
-for _, className in ipairs(ReflectionService:GetClasses()) do
-	local class = {
-		Name = className,
-		Superclass = nil,
-		Members = {}
-	}
-
-	-- herencia (útil para serializador)
-	pcall(function()
-		class.Superclass = ReflectionService:GetBaseClass(className)
-	end)
-
-	local success, members = pcall(function()
-		return ReflectionService:GetClassMembers(className)
-	end)
-
-	if success and members then
-		for _, member in ipairs(members) do
-			if member.MemberType == "Property" then
-				table.insert(class.Members, {
-					Name = member.Name,
-					MemberType = "Property",
-					ValueType = { Name = member.ValueType or "any" }
-				})
-			end
-		end
-	end
-
-	table.insert(api.Classes, class)
-end
-
-			
+		
 		if game:GetService("RunService"):IsStudio() then
-			rawAPI =  rawAPI = HttpService:JSONEncode(api)
+			rawAPI = require(game.ReplicatedStorage.FullAPI)
+		else
+			rawAPI = game:HttpGet("https://raw.githubusercontent.com/MaximumADHD/Roblox-Client-Tracker/refs/heads/roblox/Full-API-Dump.json")
 		end
 		
 		local api = service.HttpService:JSONDecode(rawAPI)
