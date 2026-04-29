@@ -52,7 +52,7 @@ DefaultSettings = {
 		IgnoreDefaultProps = true,
 		IsolateStarterPlayer = true,
 		Binary = true,
-		Callback = true,
+		Callback = false,
 		Clipboard = true
 	}
 }
